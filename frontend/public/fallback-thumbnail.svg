@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" role="img" aria-label="Video thumbnail placeholder">
+  <rect width="480" height="360" fill="#1a1a1a"/>
+  <rect x="40" y="40" width="400" height="280" rx="20" fill="#262626" stroke="#3a3a3a"/>
+  <polygon points="205,135 205,225 285,180" fill="#ffffff"/>
+  <text x="240" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#d4d4d4">CloudTalk</text>
+</svg>

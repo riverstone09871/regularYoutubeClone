@@ -1,0 +1,9 @@
+$sourceFolderPath = "frontend/src"
+$outputFilePath = "frontendCodeDump.txt"
+
+Remove-Item $outputFilePath -ErrorAction SilentlyContinue
+
+Get-ChildItem $sourceFolderPath -Recurse -File | ForEach-Object {
+    Add-Content $outputFilePath "`n`n================ FILE: $($_.FullName) ================`n"
+    Get-Content $_.FullName | Add-Content $outputFilePath
+}

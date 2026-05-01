@@ -1,0 +1,92 @@
+name: CI/CD
+
+# Run CI for every push and pull request so broken builds are caught early.
+on:
+  push:
+  pull_request:
+
+# Prevent duplicate in-progress runs on the same branch from wasting minutes.
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # React/Vite app lives in the frontend directory.
+        working-directory: frontend
+
+    steps:
+      # Check out the repository so the runner can access the source code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Use the latest Node.js LTS release and cache npm packages by lockfile.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # npm ci installs exactly what is in package-lock.json for reproducible CI builds.
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # Run the frontend test suite. This fails the workflow if tests fail.
+      - name: Run frontend tests
+        run: npm test
+
+      # Build the production-ready Vite frontend into frontend/dist.
+      - name: Build frontend
+        run: npm run build
+
+      # Upload the built frontend as a deployment-ready artifact.
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          if-no-files-found: error
+
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # Spring Boot Maven project lives in backend/demo.
+        working-directory: backend/demo
+
+    steps:
+      # Check out the repository so the runner can access the source code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Use Java 17 for Spring Boot and enable Maven dependency caching.
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # Ensure the Maven wrapper is executable on Linux runners.
+      - name: Make Maven wrapper executable
+        run: chmod +x ./mvnw
+
+      # Maven verify compiles, runs tests if present, and packages the backend jar.
+      - name: Build and test backend
+        run: ./mvnw -B clean verify
+
+      # Upload the packaged Spring Boot jar as a deployment-ready artifact.
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/demo/target/*.jar
+          if-no-files-found: error

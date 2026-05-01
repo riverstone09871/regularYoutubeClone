@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
     List<Subscription> findByUserOrderByChannelIdAsc(User user);
     Optional<Subscription> findByUserAndChannelId(User user, String channelId);
+    List<Subscription> findByUserId(Long userId);
 }

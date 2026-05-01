@@ -32,6 +32,8 @@ const CreateVideo = () => {
     setError("");
 
     try {
+      const currentUser = await api.get("/api/auth/me");
+      console.log("currentUser before creating video:", currentUser);
       await api.post("/api/videos", {
         title,
         description,
@@ -66,6 +68,7 @@ const CreateVideo = () => {
             <label className="mb-2 block text-sm font-medium text-zinc-300">Video Title</label>
             <input
               value={title}
+              name={title}
               onChange={(event) => setTitle(event.target.value)}
               className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-red-500"
               placeholder="Designing a polished React dashboard"

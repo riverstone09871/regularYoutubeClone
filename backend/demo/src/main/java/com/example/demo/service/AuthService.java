@@ -81,7 +81,11 @@ public class AuthService {
     }
 
     public User requireCurrentUser(HttpSession session, OAuth2User oauthUser) {
+        System.out.println("REQUIRE CURRENT USER SESSION ID: " + session.getId());
+        System.out.println("REQUIRE CURRENT USER session userId: " + session.getAttribute(SESSION_USER_ID));
+        System.out.println("REQUIRE CURRENT USER oauthUser: " + oauthUser);
         User user = getCurrentUser(session, oauthUser);
+        System.out.println("REQUIRE CURRENT USER resolved user: " + user);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
         }

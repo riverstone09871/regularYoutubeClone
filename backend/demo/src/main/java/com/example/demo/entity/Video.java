@@ -17,6 +17,8 @@ public class Video {
     @Column(length = 4000)
     private String description;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String thumbnailUrl;
     private String channelName;
     private LocalDateTime createdAt;

@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { api, API_BASE_URL } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
+type AuthUser = Record<string, unknown>;
+type LoginResponse = AuthUser | { user: AuthUser };
+
 const Login = () => {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
@@ -17,7 +20,17 @@ const Login = () => {
     setError("");
 
     try {
-      await api.post("/api/auth/login", { email, password });
+      const data = await api.post<LoginResponse>("/api/auth/login", { email, password });
+
+      console.log("Login response FULL:", data);
+
+      // Check if the response contains a nested user object
+      if ("user" in data && data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        localStorage.setItem("user", JSON.stringify(data));
+      }
+
       await refreshUser();
       navigate("/");
     } catch (requestError) {

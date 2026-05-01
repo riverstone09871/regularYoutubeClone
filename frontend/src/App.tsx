@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Subscriptions from "./pages/Subscriptions";
+import SubscribedChannels from "./pages/SubscribedChannels";
 import Watch from "./pages/Watch";
 
 const AppLayout = () => {
@@ -28,6 +29,7 @@ const AppLayout = () => {
             <Route path="/create-video" element={<CreateVideo />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/subscriptions/channels" element={<SubscribedChannels />} />
           </Routes>
         </main>
       </div>

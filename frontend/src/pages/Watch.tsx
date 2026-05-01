@@ -230,15 +230,14 @@ const Watch: React.FC = () => {
           </div>
 
           <h1 className="mt-5 text-3xl font-bold">{video.title}</h1>
-
-          <div className="mt-5 flex flex-col gap-4 rounded-[28px] border border-zinc-800 bg-[#181818] p-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mt-5 flex flex-row gap-4 rounded-[28px] border border-zinc-800 bg-[#181818] p-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <img src={video.channelAvatar} alt={video.channelName} className="h-14 w-14 rounded-full object-cover" />
               <div>
                 <button
                   type="button"
                   onClick={() => navigate(`/channel/${video.channelName}`)}
-                  className="text-left text-lg font-semibold hover:text-red-400"
+                  className="text-left text-md font-semibold hover:text-red-400"
                 >
                   {video.channelName}
                 </button>
@@ -256,7 +255,7 @@ const Watch: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-row gap-3">
               <button
                 type="button"
                 onClick={() => {

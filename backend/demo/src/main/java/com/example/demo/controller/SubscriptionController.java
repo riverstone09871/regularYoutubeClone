@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/subscriptions")
@@ -59,5 +60,9 @@ public class SubscriptionController {
                 "userId", user.getId(),
                 "subscribedChannelIds", subscribedChannelIds
         );
+    }
+    @GetMapping("/channels")
+    public Set<String> getSubscribedChannels(@RequestParam Long userId) {
+        return subscriptionService.getSubscribedChannelNames(userId);
     }
 }

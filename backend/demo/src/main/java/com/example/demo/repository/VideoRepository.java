@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
     List<Video> findAllByOrderByCreatedAtDesc();
+    Video findTopByChannelName(String channelName); 
 }

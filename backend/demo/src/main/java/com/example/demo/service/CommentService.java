@@ -24,8 +24,20 @@ public class CommentService {
     }
 
     public Comment addComment(String videoId, String text, Long parentCommentId, User user) {
+        return addComment(videoId, text, parentCommentId, user, null);
+    }
+
+    public Comment addComment(String videoId, String text, Long parentCommentId, User user, String idempotencyKey) {
         if (text == null || text.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "text is required");
+        }
+
+        String normalizedKey = normalizeIdempotencyKey(idempotencyKey);
+        if (normalizedKey != null && user.getId() != null) {
+            Comment existing = commentRepo.findByUserIdAndIdempotencyKey(user.getId(), normalizedKey).orElse(null);
+            if (existing != null) {
+                return existing;
+            }
         }
 
         Comment c = new Comment();
@@ -33,6 +45,7 @@ public class CommentService {
         c.setText(text.trim());
         c.setCreatedAt(LocalDateTime.now());
         c.setParentCommentId(parentCommentId);
+        c.setIdempotencyKey(normalizedKey);
         c.setLikes(0);
         c.setDislikes(0);
         c.setUser(user);
@@ -58,5 +71,12 @@ public class CommentService {
     private Comment getComment(Long commentId) {
         return commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+    }
+
+    private String normalizeIdempotencyKey(String idempotencyKey) {
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return null;
+        }
+        return idempotencyKey.trim();
     }
 }

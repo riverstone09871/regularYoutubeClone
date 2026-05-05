@@ -69,6 +69,14 @@ describe("Watch page comments", () => {
       if (path === "/api/subscriptions") {
         return { subscribedChannelIds: [] };
       }
+      if (path === "/api/auth/me") {
+        return {
+          id: 1,
+          name: "Tester",
+          email: "tester@example.com",
+          picture: "https://example.com/avatar.png",
+        };
+      }
       return [];
     });
   });

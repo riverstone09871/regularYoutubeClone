@@ -5,6 +5,7 @@ export const seedVideos: Video[] = [
     id: "1",
     title: "Building a YouTube Clone with React",
     thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
     channelName: "CodeWithDev",
     channelAvatar: "https://randomuser.me/api/portraits/men/1.jpg",
     subscribers: "1.2M",

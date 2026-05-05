@@ -3,6 +3,11 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { MessageCircleReply, Share2, ThumbsDown, ThumbsUp, UserPlus2 } from "lucide-react";
 import { api, API_BASE_URL } from "../lib/api";
 import { loadVideos } from "../lib/videos";
+import {
+  loadCatalogAndCommentsInParallel,
+  rememberLastWatchedVideoId,
+  resolveSubscriptionAndSession,
+} from "../lib/watchPagePromises";
 import { useAuth } from "../context/AuthContext";
 import type { Video, VideoComment } from "../types";
 
@@ -39,19 +44,34 @@ const Watch: React.FC = () => {
   const [disliked, setDisliked] = useState(false);
 
   useEffect(() => {
-    void loadVideos().then((loadedVideos) => {
-      setVideos(loadedVideos);
-      setVideo(loadedVideos.find((entry) => entry.id === videoId) ?? null);
-    });
-  }, [videoId]);
+    if (!videoId) {
+      setVideos([]);
+      setVideo(null);
+      setComments([]);
+      return;
+    }
 
-  useEffect(() => {
-    if (!videoId) return;
+    const controller = new AbortController();
 
-    void api
-      .get<VideoComment[]>(`/api/comments/${videoId}`)
-      .then(setComments)
-      .catch(() => setComments([]));
+    void loadCatalogAndCommentsInParallel(
+      videoId,
+      { loadVideos, get: api.get },
+      { signal: controller.signal },
+    )
+      .then(({ videos, video: matchedVideo, comments: loadedComments }) => {
+        setVideos(videos);
+        setVideo(matchedVideo);
+        setComments(loadedComments);
+      })
+      .catch(() => {
+        setVideos([]);
+        setVideo(null);
+        setComments([]);
+      });
+
+    void rememberLastWatchedVideoId(videoId);
+
+    return () => controller.abort();
   }, [videoId]);
 
   useEffect(() => {
@@ -66,10 +86,9 @@ const Watch: React.FC = () => {
       return;
     }
 
-    void api
-      .get<{ subscribedChannelIds: string[] }>("/api/subscriptions")
-      .then((response) => setSubscribed(response.subscribedChannelIds.includes(video.channelName)))
-      .catch(() => setSubscribed(false));
+    void resolveSubscriptionAndSession(video, api.get).then(({ subscribed: nextSubscribed }) => {
+      setSubscribed(nextSubscribed);
+    });
   }, [user, video]);
 
   const commentTree = useMemo(() => organizeComments(comments), [comments]);
@@ -219,14 +238,24 @@ const Watch: React.FC = () => {
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div>
           <div className="overflow-hidden rounded-[28px] border border-zinc-800 bg-black">
-            <div className="aspect-video bg-[radial-gradient(circle_at_center,_rgba(239,68,68,0.12),_transparent_45%),linear-gradient(135deg,#111,#000)] px-8 py-10">
-              <div className="flex h-full items-end rounded-[24px] border border-white/10 bg-black/40 p-6">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.2em] text-red-400">Now watching</p>
-                  <h2 className="mt-3 text-3xl font-bold">{video.title}</h2>
+            {video.embedUrl ? (
+              <iframe
+                className="aspect-video w-full"
+                src={video.embedUrl}
+                title={video.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : (
+              <div className="aspect-video bg-[radial-gradient(circle_at_center,_rgba(239,68,68,0.12),_transparent_45%),linear-gradient(135deg,#111,#000)] px-8 py-10">
+                <div className="flex h-full items-end rounded-[24px] border border-white/10 bg-black/40 p-6">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.2em] text-red-400">Now watching</p>
+                    <h2 className="mt-3 text-3xl font-bold">{video.title}</h2>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           <h1 className="mt-5 text-3xl font-bold">{video.title}</h1>

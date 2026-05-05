@@ -1,0 +1,63 @@
+type Query {
+  health: String!
+  me: User
+  videos: [Video!]!
+  comments(videoId: String!): [Comment!]!
+  allComments: [Comment!]!
+  subscriptions: SubscriptionSummary!
+  subscribedChannels(userId: ID!): [String!]!
+}
+
+type Mutation {
+  register(name: String!, email: String!, password: String!): User!
+  login(email: String!, password: String!): User!
+  logout: Boolean!
+  createVideo(title: String!, description: String!, thumbnailUrl: String): Video!
+  addComment(videoId: String!, text: String!, parentCommentId: ID, idempotencyKey: String): Comment!
+  replyToComment(commentId: ID!, videoId: String!, text: String!): Comment!
+  likeComment(commentId: ID!): Comment!
+  dislikeComment(commentId: ID!): Comment!
+  toggleSubscription(channelId: String!): ToggleSubscriptionPayload!
+}
+
+type User {
+  id: ID!
+  googleId: String
+  email: String
+  name: String
+  picture: String
+  authProvider: String
+}
+
+type Video {
+  id: ID!
+  title: String
+  description: String
+  thumbnailUrl: String
+  channelName: String
+  createdAt: String
+  user: User
+}
+
+type Comment {
+  id: ID!
+  videoId: String
+  text: String
+  createdAt: String
+  parentCommentId: ID
+  idempotencyKey: String
+  likes: Int!
+  dislikes: Int!
+  user: User
+}
+
+type SubscriptionSummary {
+  userId: ID!
+  subscribedChannelIds: [String!]!
+}
+
+type ToggleSubscriptionPayload {
+  subscribed: Boolean!
+  userId: ID!
+  subscribedChannelIds: [String!]!
+}

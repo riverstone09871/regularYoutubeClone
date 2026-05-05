@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Comments")
+@Table(
+        name = "Comments",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_comments_user_idempotency_key",
+                columnNames = {"userId", "idempotencyKey"}
+        )
+)
 public class Comment {
 
     @Id
@@ -21,6 +27,9 @@ public class Comment {
 
     @Column(name = "parentCommentId")
     private Long parentCommentId;
+
+    @Column(name = "idempotencyKey")
+    private String idempotencyKey;
 
     @Column(columnDefinition = "integer default 0")
     private int likes;
@@ -45,6 +54,9 @@ public class Comment {
 
     public Long getParentCommentId() { return parentCommentId; }
     public void setParentCommentId(Long parentCommentId) { this.parentCommentId = parentCommentId; }
+
+    public String getIdempotencyKey() { return idempotencyKey; }
+    public void setIdempotencyKey(String idempotencyKey) { this.idempotencyKey = idempotencyKey; }
 
     public int getLikes() { return likes; }
     public void setLikes(int likes) { this.likes = likes; }

@@ -10,6 +10,7 @@ export type Video = {
   id: string;
   title: string;
   thumbnail: string;
+  embedUrl?: string;
   channelName: string;
   channelAvatar: string;
   subscribers: string;

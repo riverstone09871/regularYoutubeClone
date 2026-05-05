@@ -40,6 +40,7 @@ public class CommentController {
     @PostMapping
     public Comment addComment(
             @RequestBody Map<String, String> body,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @AuthenticationPrincipal OAuth2User oauthUser,
             HttpSession session
     ) {
@@ -49,7 +50,7 @@ public class CommentController {
                 ? null
                 : Long.parseLong(body.get("parentCommentId"));
 
-        return service.addComment(body.get("videoId"), body.get("text"), parentCommentId, user);
+        return service.addComment(body.get("videoId"), body.get("text"), parentCommentId, user, idempotencyKey);
     }
 
     @PostMapping("/{commentId}/reply")
